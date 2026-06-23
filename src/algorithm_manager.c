@@ -1,3 +1,5 @@
+#include <stddef.h>
+
 #include "algorithm_manager.h"
 
 Algorithm *current_algorithm = NULL;
