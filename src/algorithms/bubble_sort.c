@@ -3,7 +3,7 @@
 #include "bubble_sort.h"
 #include "../array.h" // provides 'count' and 'numbers[]'
 #include <stdbool.h>
-
+#include "algorithm.h"
 
 static int i = 0; // current index in pass
 static int n = 0; // length of unsorted region (initially count)

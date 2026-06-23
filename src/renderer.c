@@ -16,20 +16,21 @@ void draw_bars(sort_status status)
     {
         int value = numbers[i];
 
-        float bar_height = ((float)value * HEIGHT * 0.85f) / count;
+        float bar_height = ((float)value * HEIGHT * 0.86f) / count;
         float bar_width = (drawable_width / count) - gap;
         float xpos = SIDEBAR_WIDTH + ((float)i / count) * drawable_width;
         float ypos = HEIGHT - bar_height;
 
         Color color = (Color){230, 230, 230, 255};
 
-
-        // Sorted region during sorting
-        if (i >= sort_n)
+        if (status.done)
         {
             color = (Color){0, 220, 90, 255};
         }
-        // Current comparison
+        else if (i >= sort_n)
+        {
+            color = (Color){0, 220, 90, 255};
+        }
         else if (i == status.i || i == status.j)
         {
             if (status.swapped)
@@ -42,7 +43,6 @@ void draw_bars(sort_status status)
             }
         }
 
-        // Shadow
         DrawRectangle(
             (int)xpos + 2,
             (int)ypos + 2,
@@ -50,7 +50,6 @@ void draw_bars(sort_status status)
             (int)bar_height,
             (Color){0, 0, 0, 35});
 
-        // Actual bar
         DrawRectangle(
             (int)xpos,
             (int)ypos,
@@ -58,7 +57,6 @@ void draw_bars(sort_status status)
             (int)bar_height,
             color);
 
-        // Border
         if (count <= 100)
         {
             DrawRectangleLines(
@@ -70,7 +68,6 @@ void draw_bars(sort_status status)
         }
     }
 
-    // Baseline
     DrawLine(
         SIDEBAR_WIDTH,
         HEIGHT - 1,
@@ -84,190 +81,71 @@ void draw_ui(bool paused, int sorting_speed)
     Color labelColor = (Color){150, 150, 150, 255};
     Color valueColor = (Color){230, 230, 230, 255};
     Color statusColor = paused ? (Color){255, 180, 60, 255} : (Color){0, 220, 90, 255};
-
     Color lineColor = (Color){60, 60, 60, 255};
+    Color accentColor = SKYBLUE;
+    Color sectionColor = (Color){180, 180, 180, 255};
+    Color panelColor = (Color){24, 24, 24, 255};
+    Color borderColor = (Color){55, 55, 55, 255};
 
     DrawRectangle(
         0,
         0,
         SIDEBAR_WIDTH,
         HEIGHT,
-        (Color){24, 24, 24, 255});
+        panelColor);
 
     DrawLine(
         SIDEBAR_WIDTH,
         0,
         SIDEBAR_WIDTH,
         HEIGHT,
-        (Color){55, 55, 55, 255});
+        borderColor);
 
-    //---------------- HEADER ----------------//
+    // HEADER
+    DrawText("SORTING", 25, 22, 32, GOLD);
+    DrawText("VISUALIZER", 25, 60, 24, accentColor);
 
-    DrawText(
-        "SORTING",
-        25,
-        22,
-        32,
-        GOLD);
+    DrawLine(20, 100, SIDEBAR_WIDTH - 20, 100, lineColor);
 
-    DrawText(
-        "VISUALIZER",
-        25,
-        60,
-        24,
-        SKYBLUE);
+    // STATUS
+    DrawText("Status", 25, 120, 18, labelColor);
+    DrawText(paused ? "PAUSED" : "RUNNING", 25, 145, 28, statusColor);
 
-    DrawLine(
-        20,
-        100,
-        SIDEBAR_WIDTH - 20,
-        100,
-        lineColor);
+    // ARRAY SIZE
+    DrawText("Array Size", 25, 200, 18, labelColor);
+    DrawText(TextFormat("%d", count), 25, 225, 28, valueColor);
 
-    //---------------- STATUS ----------------//
+    // SPEED
+    DrawText("Animation Speed", 25, 280, 18, labelColor);
+    DrawText(TextFormat("%dx", sorting_speed), 25, 305, 28, valueColor);
 
-    DrawText(
-        "Status",
-        25,
-        120,
-        18,
-        labelColor);
+    DrawLine(20, 350, SIDEBAR_WIDTH - 20, 350, lineColor);
 
-    DrawText(
-        paused ? "PAUSED" : "RUNNING",
-        25,
-        145,
-        28,
-        statusColor);
+    // STATISTICS
+    DrawText("Statistics", 25, 370, 24, accentColor);
 
-    //---------------- ARRAY ----------------//
+    DrawText("Comparisons", 25, 415, 18, labelColor);
+    DrawText(TextFormat("%ld", metrics.comparisons), 25, 440, 24, valueColor);
 
-    DrawText(
-        "Array Size",
-        25,
-        195,
-        18,
-        labelColor);
+    DrawText("Swaps", 25, 490, 18, labelColor);
+    DrawText(TextFormat("%ld", metrics.swaps), 25, 515, 24, valueColor);
 
-    DrawText(
-        TextFormat("%d", count),
-        25,
-        220,
-        28,
-        valueColor);
+    DrawLine(20, 560, SIDEBAR_WIDTH - 20, 560, lineColor);
 
-    //---------------- SPEED ----------------//
+    // ALGORITHMS
+    DrawText("Algorithms", 25, 580, 24, accentColor);
+    DrawText("[1] Bubble Sort", 25, 620, 18, sectionColor);
+    DrawText("[2] Selection Sort", 25, 650, 18, sectionColor);
+    DrawText("[3] Insertion Sort", 25, 680, 18, sectionColor);
+    DrawText("[4] Merge Sort", 25, 710, 18, sectionColor);
+    DrawText("[5] Quick Sort", 25, 740, 18, sectionColor);
+    DrawText("[6] Heap Sort", 25, 770, 18, sectionColor);
 
-    DrawText(
-        "Animation Speed",
-        25,
-        270,
-        18,
-        labelColor);
+    DrawText("Press 1-6 to switch", 25, 805, 16, labelColor);
 
-    DrawText(
-        TextFormat("%dx", sorting_speed),
-        25,
-        295,
-        28,
-        valueColor);
+    DrawLine(20, 835, SIDEBAR_WIDTH - 20, 835, lineColor);
 
-    DrawLine(
-        20,
-        345,
-        SIDEBAR_WIDTH - 20,
-        345,
-        lineColor);
-
-    DrawLine(
-        20,
-        345,
-        SIDEBAR_WIDTH - 20,
-        345,
-        lineColor);
-
-    // Required data for the sorting
-    DrawText(
-        "Statistics",
-        25,
-        365,
-        24,
-        SKYBLUE);
-
-    DrawText(
-        "Comparisons",
-        25,
-        405,
-        18,
-        labelColor);
-
-    DrawText(
-        TextFormat("%ld", metrics.comparisons),
-        25,
-        430,
-        24,
-        valueColor);
-
-    DrawText(
-        "Swaps",
-        25,
-        475,
-        18,
-        labelColor);
-
-    DrawText(
-        TextFormat("%ld", metrics.swaps),
-        25,
-        500,
-        24,
-        valueColor);
-
-    //---------------- CONTROLS ----------------//
-
-    DrawText(
-        "Controls",
-        25,
-        365,
-        24,
-        SKYBLUE);
-
-    int y = 405;
-    int gap = 34;
-
-    DrawText("SPACE   Pause / Resume", 25, y, 18, valueColor);
-    y += gap;
-    DrawText("R       Shuffle", 25, y, 18, valueColor);
-    y += gap;
-    DrawText("UP      Increase Size", 25, y, 18, valueColor);
-    y += gap;
-    DrawText("DOWN    Decrease Size", 25, y, 18, valueColor);
-    y += gap;
-    DrawText("+       Increase Speed", 25, y, 18, valueColor);
-    y += gap;
-    DrawText("-       Decrease Speed", 25, y, 18, valueColor);
-    y += gap;
-    DrawText("N       Next Step", 25, y, 18, valueColor);
-
-    //---------------- FOOTER ----------------//
-
-    DrawLine(
-        20,
-        HEIGHT - 90,
-        SIDEBAR_WIDTH - 20,
-        HEIGHT - 90,
-        lineColor);
-
-    DrawText(
-        get_algorithm_name(),
-        25,
-        HEIGHT - 75,
-        18,
-        SKYBLUE);
-
-    DrawText(
-        "Time : O(n²)",
-        25,
-        HEIGHT - 48,
-        16,
-        labelColor);
+    // FOOTER
+    DrawText("Current Algorithm", 25, 852, 18, labelColor);
+    DrawText(get_algorithm_name(), 25, 875, 18, accentColor);
 }
