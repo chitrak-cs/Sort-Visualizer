@@ -1,108 +1,206 @@
 #include <raylib.h>
-#include <stdbool.h>
+#include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
 
+#include "renderer.h"
 #include "metrics.h"
 #include "algorithm_manager.h"
-#include "renderer.h"
 #include "array.h"
 #include "sort_state.h"
 #include "config.h"
 
-static void draw_card(int x, int y, int w, int h, Color fill, Color border, Color accent)
+#define COL_BACKGROUND (Color){18, 20, 24, 255}
+#define COL_CARD (Color){30, 33, 39, 255}
+#define COL_BORDER (Color){55, 60, 70, 255}
+
+#define COL_TEXT (Color){235, 235, 240, 255}
+#define COL_MUTED (Color){150, 155, 165, 255}
+
+#define COL_BLUE (Color){90, 180, 255, 255}
+#define COL_GREEN (Color){0, 220, 100, 255}
+#define COL_RED (Color){255, 90, 90, 255}
+#define COL_GOLD (Color){255, 210, 70, 255}
+#define COL_ORANGE (Color){255, 180, 70, 255}
+
+#define COL_ACTIVE (Color){42, 55, 78, 255}
+
+static void draw_card_with_shadow(
+    Rectangle rec,
+    Color fill,
+    Color border,
+    Color accent)
 {
-    DrawRectangle(x + 3, y + 4, w, h, (Color){0, 0, 0, 60});
-    DrawRectangleRounded((Rectangle){(float)x, (float)y, (float)w, (float)h}, 0.12f, 8, fill);
-    DrawRectangle(x, y, w, 4, accent);
-    DrawRectangleLinesEx((Rectangle){(float)x, (float)y, (float)w, (float)h}, 1.0f, border);
+    DrawRectangleRounded(
+        (Rectangle){
+            rec.x + 3,
+            rec.y + 4,
+            rec.width,
+            rec.height},
+        0.12f,
+        8,
+        (Color){0, 0, 0, 70});
+
+    DrawRectangleRounded(
+        rec,
+        0.12f,
+        8,
+        fill);
+
+    DrawRectangle(
+        rec.x,
+        rec.y,
+        rec.width,
+        4,
+        accent);
+
+    DrawRectangleRoundedLines(
+        rec,
+        0.12f,
+        8,
+        border);
 }
 
-static void draw_row(int x, int y, const char *key, const char *value, Color keyColor, Color valueColor)
+// Text Helper
+static void draw_title(
+    int x,
+    int y,
+    const char *text)
 {
-    DrawText(key, x, y, 16, keyColor);
-    DrawText(value, x + 92, y, 16, valueColor);
+    DrawText(
+        text,
+        x,
+        y,
+        18,
+        COL_MUTED);
 }
 
-static void draw_keycap(int x, int y, const char *key, Color fill, Color border, Color textColor)
+static void draw_value(
+    int x,
+    int y,
+    const char *text)
 {
-    int keyWidth = MeasureText(key, 16) + 18;
-    if (keyWidth < 52)
-        keyWidth = 52;
-
-    DrawRectangle(x, y - 2, keyWidth, 22, fill);
-    DrawRectangleLines(x, y - 2, keyWidth, 22, border);
-    DrawText(key, x + 8, y, 16, textColor);
+    DrawText(
+        text,
+        x,
+        y,
+        22,
+        COL_TEXT);
 }
 
-static bool is_active_algorithm(const char *name)
+// keyboard button
+static void draw_key(
+    int x,
+    int y,
+    const char *key)
 {
-    const char *current = get_algorithm_name();
-    return (current != NULL && name != NULL && strcmp(current, name) == 0);
+    int w = MeasureText(key, 16) + 18;
+
+    if (w < 48)
+        w = 48;
+
+    DrawRectangleRounded(
+        (Rectangle){
+            x,
+            y,
+            w,
+            24},
+        0.20f,
+        6,
+        (Color){42, 45, 54, 255});
+
+    DrawRectangleRoundedLines(
+        (Rectangle){
+            x,
+            y,
+            w,
+            24},
+        0.20f,
+        6,
+        COL_BORDER);
+
+    DrawText(
+        key,
+        x + (w - MeasureText(key, 16)) / 2,
+        y + 4,
+        16,
+        COL_TEXT);
 }
 
-static void draw_algorithm_row(int x, int y, const char *hotkey, const char *name, bool active, Color muted, Color accent, Color activeFill)
+// algorithm highlight
+static bool algorithm_selected(
+    const char *name)
 {
-    if (active)
-    {
-        DrawRectangle(x + 4, y - 2, SIDEBAR_WIDTH - 40, 24, activeFill);
-        DrawRectangle(x - 8, y + 6, 5, 5, accent);
-    }
-
-    DrawText(hotkey, x, y, 16, active ? accent : muted);
-    DrawText(name, x + 42, y, 16, active ? accent : muted);
+    return strcmp(
+               name,
+               get_algorithm_name()) == 0;
 }
 
+// draw bars
 void draw_bars(sort_status status)
 {
-    float gap = (count <= 100) ? 1.0f : 0.0f;
-    float drawable_width = WIDTH - SIDEBAR_WIDTH;
+    float gap =
+        (count <= 100) ? 1.0f : 0.0f;
+
+    float drawableWidth =
+        WIDTH - SIDEBAR_WIDTH;
 
     for (int i = 0; i < count; i++)
     {
-        int value = numbers[i];
+        float width =
+            drawableWidth / count - gap;
 
-        float bar_height = ((float)value * HEIGHT * 0.86f) / count;
-        float bar_width = (drawable_width / count) - gap;
-        float xpos = SIDEBAR_WIDTH + ((float)i / count) * drawable_width;
-        float ypos = HEIGHT - bar_height;
+        float height =
+            ((float)numbers[i] * HEIGHT * 0.86f) / count;
 
-        Color color = (Color){232, 232, 238, 255};
+        float x =
+            SIDEBAR_WIDTH +
+            i * (drawableWidth / count);
+
+        float y =
+            HEIGHT - height;
+
+        Color color =
+            (Color){235, 235, 238, 255};
 
         if (status.done)
         {
-            color = (Color){0, 220, 90, 255};
+            color = COL_GREEN;
         }
         else if (i >= sort_n)
         {
-            color = (Color){0, 220, 90, 255};
+            color = COL_GREEN;
         }
         else if (i == status.i || i == status.j)
         {
-            color = status.swapped ? (Color){255, 90, 90, 255} : SKYBLUE;
+            if (status.swapped)
+                color = COL_RED;
+            else
+                color = COL_BLUE;
         }
 
         DrawRectangle(
-            (int)xpos + 2,
-            (int)ypos + 2,
-            (int)bar_width,
-            (int)bar_height,
-            (Color){0, 0, 0, 40});
+            x + 2,
+            y + 3,
+            width,
+            height,
+            (Color){0, 0, 0, 50});
 
         DrawRectangle(
-            (int)xpos,
-            (int)ypos,
-            (int)bar_width,
-            (int)bar_height,
+            x,
+            y,
+            width,
+            height,
             color);
 
-        if (count <= 100)
+        if (count <= 120)
         {
             DrawRectangleLines(
-                (int)xpos,
-                (int)ypos,
-                (int)bar_width,
-                (int)bar_height,
-                (Color){70, 70, 78, 255});
+                x,
+                y,
+                width,
+                height,
+                (Color){45, 45, 45, 255});
         }
     }
 
@@ -111,98 +209,239 @@ void draw_bars(sort_status status)
         HEIGHT - 1,
         WIDTH,
         HEIGHT - 1,
-        (Color){60, 60, 60, 255});
+        COL_BORDER);
 }
 
+// draw ui
 void draw_ui(bool paused, int sorting_speed)
 {
-    const Color bg = (Color){18, 18, 22, 255};
-    const Color panel = (Color){28, 30, 36, 255};
-    const Color border = (Color){58, 60, 68, 255};
-    const Color title = GOLD;
-    const Color accent = SKYBLUE;
-    const Color text = (Color){235, 235, 240, 255};
-    const Color muted = (Color){155, 160, 172, 255};
-    const Color success = (Color){0, 220, 90, 255};
-    const Color warning = (Color){255, 180, 60, 255};
-    const Color activeFill = (Color){35, 42, 56, 255};
+    DrawRectangle(
+        0,
+        0,
+        SIDEBAR_WIDTH,
+        HEIGHT,
+        COL_BACKGROUND);
 
-    const int x = 14;
-    const int w = SIDEBAR_WIDTH - 28;
+    DrawLine(
+        SIDEBAR_WIDTH,
+        0,
+        SIDEBAR_WIDTH,
+        HEIGHT,
+        COL_BORDER);
 
-    DrawRectangle(0, 0, SIDEBAR_WIDTH, HEIGHT, bg);
-    DrawLine(SIDEBAR_WIDTH, 0, SIDEBAR_WIDTH, HEIGHT, border);
+    //----------------------------------------
+    // Header
+    //----------------------------------------
 
-    // HEADER
-    draw_card(x, 12, w, 84, panel, border, accent);
-    DrawText("SORTING", 28, 26, 30, title);
-    DrawText("VISUALIZER", 28, 58, 24, accent);
-    DrawText("Press 1-6 to switch algorithms", 28, 84, 12, muted);
+    draw_card_with_shadow(
+        (Rectangle){15, 15, SIDEBAR_WIDTH - 30, 90},
+        COL_CARD,
+        COL_BORDER,
+        COL_BLUE);
 
-    // STATUS
-    draw_card(x, 108, w, 128, panel, border, warning);
-    DrawText("STATUS", 28, 120, 16, muted);
+    DrawText(
+        "SORTING",
+        30,
+        28,
+        32,
+        COL_GOLD);
 
-    DrawCircle(38, 156, 6, paused ? warning : success);
-    DrawText(paused ? "PAUSED" : "RUNNING", 52, 144, 28, paused ? warning : success);
+    DrawText(
+        "VISUALIZER",
+        30,
+        62,
+        24,
+        COL_BLUE);
 
-    DrawText("CURRENT ALGORITHM", 28, 182, 14, muted);
-    DrawText(TextFormat("▶ %s", get_algorithm_name()), 28, 202, 18, accent);
+    DrawText(
+        "Visualize Algorithms",
+        30,
+        88,
+        13,
+        COL_MUTED);
 
-    // STATISTICS
-    draw_card(x, 248, w, 92, panel, border, success);
-    DrawText("STATISTICS", 28, 260, 16, muted);
+    //----------------------------------------
+    // Status Card
+    //----------------------------------------
 
-    DrawText("Comparisons", 28, 286, 14, muted);
-    DrawText(TextFormat("%ld", metrics.comparisons), 180, 280, 22, text);
+    draw_card_with_shadow(
+        (Rectangle){15, 120, SIDEBAR_WIDTH - 30, 90},
+        COL_CARD,
+        COL_BORDER,
+        COL_GREEN);
 
-    DrawText("Swaps", 28, 314, 14, muted);
-    DrawText(TextFormat("%ld", metrics.swaps), 180, 308, 22, text);
+    draw_title(
+        30,
+        132,
+        "STATUS");
 
-    // PLAYBACK
-    draw_card(x, 352, w, 92, panel, border, title);
-    DrawText("PLAYBACK", 28, 364, 16, muted);
+    DrawCircle(
+        38,
+        170,
+        6,
+        paused ? COL_ORANGE : COL_GREEN);
 
-    DrawText("Array Size", 28, 390, 14, muted);
-    DrawText(TextFormat("%d", count), 180, 384, 22, text);
+    DrawText(
+        paused ? "PAUSED" : "RUNNING",
+        52,
+        160,
+        24,
+        paused ? COL_ORANGE : COL_GREEN);
 
-    DrawText("Speed", 28, 418, 14, muted);
+    //----------------------------------------
+    // Statistics
+    //----------------------------------------
+
+    draw_card_with_shadow(
+        (Rectangle){15, 225, SIDEBAR_WIDTH - 30, 125},
+        COL_CARD,
+        COL_BORDER,
+        COL_BLUE);
+
+    draw_title(
+        30,
+        238,
+        "STATISTICS");
+
+    DrawText(
+        "Comparisons",
+        30,
+        270,
+        17,
+        COL_MUTED);
+
+    DrawText(
+        TextFormat("%ld", metrics.comparisons),
+        215,
+        268,
+        20,
+        COL_TEXT);
+
+    DrawText(
+        "Swaps",
+        30,
+        305,
+        17,
+        COL_MUTED);
+
+    DrawText(
+        TextFormat("%ld", metrics.swaps),
+        215,
+        303,
+        20,
+        COL_TEXT);
+
+    //----------------------------------------
+    // Playback
+    //----------------------------------------
+
+    draw_card_with_shadow(
+        (Rectangle){15, 365, SIDEBAR_WIDTH - 30, 115},
+        COL_CARD,
+        COL_BORDER,
+        COL_GOLD);
+
+    draw_title(
+        30,
+        378,
+        "PLAYBACK");
+
+    DrawText(
+        "Array Size",
+        30,
+        410,
+        17,
+        COL_MUTED);
+
+    DrawText(
+        TextFormat("%d", count),
+        215,
+        408,
+        20,
+        COL_TEXT);
+
+    DrawText(
+        "Speed",
+        30,
+        440,
+        17,
+        COL_MUTED);
+
     if (sorting_speed == 0)
     {
-        DrawText("MANUAL", 180, 412, 22, warning);
+        DrawText(
+            "MANUAL",
+            215,
+            438,
+            20,
+            COL_ORANGE);
     }
     else
     {
-        DrawText(TextFormat("%dx", sorting_speed), 180, 412, 22, text);
+        DrawText(
+            TextFormat("%dx", sorting_speed),
+            215,
+            438,
+            20,
+            COL_TEXT);
     }
 
-    // CONTROLS
-    draw_card(x, 456, w, 188, panel, border, accent);
-    DrawText("CONTROLS", 28, 468, 16, muted);
+    //----------------------------------------
+    // Controls
+    //----------------------------------------
 
-    draw_keycap(28, 496, "SPACE", (Color){40, 44, 52, 255}, border, text);
-    DrawText("Pause / Resume", 118, 496, 16, text);
+    draw_card_with_shadow(
+        (Rectangle){15, 495, SIDEBAR_WIDTH - 30, 180},
+        COL_CARD,
+        COL_BORDER,
+        COL_ORANGE);
 
-    draw_keycap(28, 524, "R", (Color){40, 44, 52, 255}, border, text);
-    DrawText("Shuffle", 118, 524, 16, text);
+    draw_title(
+        30,
+        508,
+        "CONTROLS");
 
-    draw_keycap(28, 552, "UP / DOWN", (Color){40, 44, 52, 255}, border, text);
-    DrawText("Array Size", 118, 552, 16, text);
+    int y = 540;
 
-    draw_keycap(28, 580, "+ / -", (Color){40, 44, 52, 255}, border, text);
-    DrawText("Speed", 118, 580, 16, text);
+    draw_key(30, y, "SPACE");
+    DrawText("Pause / Resume", 110, y + 4, 16, COL_TEXT);
 
-    draw_keycap(28, 608, "N", (Color){40, 44, 52, 255}, border, text);
-    DrawText("Next Step", 118, 608, 16, text);
+    y += 30;
 
-    draw_keycap(28, 636, "1 - 6", (Color){40, 44, 52, 255}, border, text);
-    DrawText("Switch Algorithm", 118, 636, 16, text);
+    draw_key(30, y, "R");
+    DrawText("Shuffle", 110, y + 4, 16, COL_TEXT);
 
-    // ALGORITHMS
-    draw_card(x, 656, w, 224, panel, border, warning);
-    DrawText("ALGORITHMS", 28, 668, 16, muted);
+    y += 30;
 
-    const char *names[] = {
+    draw_key(30, y, "UP");
+    DrawText("Increase Size", 110, y + 4, 16, COL_TEXT);
+
+    y += 30;
+
+    draw_key(30, y, "DOWN");
+    DrawText("Decrease Size", 110, y + 4, 16, COL_TEXT);
+
+    y += 30;
+
+    draw_key(30, y, "+  -");
+    DrawText("Speed", 110, y + 4, 16, COL_TEXT);
+
+    //----------------------------------------
+    // Algorithms
+    //----------------------------------------
+
+    draw_card_with_shadow(
+        (Rectangle){15, 690, SIDEBAR_WIDTH - 30, 180},
+        COL_CARD,
+        COL_BORDER,
+        COL_BLUE);
+
+    draw_title(
+        30,
+        703,
+        "ALGORITHMS");
+
+    const char *algos[] = {
         "Bubble Sort",
         "Selection Sort",
         "Insertion Sort",
@@ -210,21 +449,71 @@ void draw_ui(bool paused, int sorting_speed)
         "Quick Sort",
         "Heap Sort"};
 
-    const char *keys[] = {
-        "[1]",
-        "[2]",
-        "[3]",
-        "[4]",
-        "[5]",
-        "[6]"};
+    int ay = 735;
 
-    int row_y = 696;
     for (int i = 0; i < 6; i++)
     {
-        bool active = is_active_algorithm(names[i]);
-        draw_algorithm_row(28, row_y, keys[i], names[i], active, muted, accent, activeFill);
-        row_y += 28;
+        bool active =
+            algorithm_selected(algos[i]);
+
+        if (active)
+        {
+            DrawRectangleRounded(
+                (Rectangle){
+                    26,
+                    ay - 4,
+                    SIDEBAR_WIDTH - 52,
+                    24},
+                0.20f,
+                8,
+                COL_ACTIVE);
+
+            DrawCircle(
+                38,
+                ay + 8,
+                4,
+                COL_BLUE);
+        }
+
+        DrawText(
+            TextFormat("%d", i + 1),
+            50,
+            ay,
+            16,
+            active ? COL_BLUE : COL_MUTED);
+
+        DrawText(
+            algos[i],
+            78,
+            ay,
+            16,
+            active ? COL_BLUE : COL_TEXT);
+
+        ay += 27;
     }
 
-    DrawText("Current selection is highlighted", 28, 858, 12, muted);
+    //----------------------------------------
+    // Footer
+    //----------------------------------------
+
+    DrawLine(
+        18,
+        HEIGHT - 42,
+        SIDEBAR_WIDTH - 18,
+        HEIGHT - 42,
+        COL_BORDER);
+
+    DrawText(
+        TextFormat("FPS : %d", GetFPS()),
+        30,
+        HEIGHT - 30,
+        14,
+        COL_MUTED);
+
+    DrawText(
+        TextFormat("Time : %.2fs", metrics.elapsed_time),
+        160,
+        HEIGHT - 30,
+        14,
+        COL_MUTED);
 }
