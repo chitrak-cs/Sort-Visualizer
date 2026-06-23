@@ -1,6 +1,7 @@
 #include <raylib.h>
 
 #include "metrics.h"
+#include "algorithm_manager.h"
 #include "renderer.h"
 #include "array.h"
 #include "sort_state.h"
@@ -257,7 +258,7 @@ void draw_ui(bool paused, int sorting_speed)
         lineColor);
 
     DrawText(
-        "Bubble Sort",
+        get_algorithm_name(),
         25,
         HEIGHT - 75,
         18,

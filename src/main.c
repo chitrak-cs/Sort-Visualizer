@@ -4,10 +4,11 @@
 #include <raylib.h>
 
 #include "algorithms/bubble_sort.h"
+#include "algorithm_manager.h"
 #include "metrics.h"
 #include "array.h" // initialises 'numbers' and 'count'
 #include "renderer.h"
-#include "sort_state.h" // BubbleSort.step(), BubbleSort.reset(), sort_n
+#include "sort_state.h" // current_algorithm->step(), current_algorithm->reset(), sort_n
 #include "config.h"     // WIDTH, HEIGHT, SIDEBAR_WIDTH
 
 int main(void)
@@ -15,6 +16,7 @@ int main(void)
     initialise_numbers(); // fill the array and set count
 
     InitWindow(WIDTH, HEIGHT, "Sorting Visualizer");
+    set_algorithm(&BubbleSort);
     SetTargetFPS(60); // lock to 60 FPS
 
     sort_status status = {0};
@@ -23,7 +25,7 @@ int main(void)
     if (sorting_speed < 1)
         sorting_speed = 1; // ensure at least 1
 
-    BubbleSort.reset(); // initialize sorting state
+    current_algorithm->reset(); // initialize sorting state
 
     while (!WindowShouldClose())
     {
@@ -35,13 +37,13 @@ int main(void)
         // Next-step (manual) only when paused
         if (paused && IsKeyPressed(KEY_N) && !status.done)
         {
-            status = BubbleSort.step();
+            status = current_algorithm->step();
         }
         // Shuffle the array
         if (IsKeyPressed(KEY_R))
         {
             initialise_numbers();
-            BubbleSort.reset();
+            current_algorithm->reset();
             status = (sort_status){0};
         }
         // Increase array size
@@ -49,7 +51,7 @@ int main(void)
         {
             count += 20;
             initialise_numbers();
-            BubbleSort.reset();
+            current_algorithm->reset();
             status = (sort_status){0};
             sorting_speed = count / 20;
             if (sorting_speed < 1)
@@ -60,7 +62,7 @@ int main(void)
         {
             count -= 20;
             initialise_numbers();
-            BubbleSort.reset();
+            current_algorithm->reset();
             reset_metrics();
             status = (sort_status){0};
             sorting_speed = count / 20;
@@ -92,7 +94,7 @@ int main(void)
         {
             for (int k = 0; k < sorting_speed; k++)
             {
-                status = BubbleSort.step();
+                status = current_algorithm->step();
                 if (status.done)
                     break;
             }
