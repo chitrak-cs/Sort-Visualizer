@@ -1,7 +1,7 @@
-#include "sort_state.h"
-#include "metrics.h"
+#include "../sort_state.h"
+#include "../metrics.h"
 #include "bubble_sort.h"
-#include "array.h" // provides 'count' and 'numbers[]'
+#include "../array.h" // provides 'count' and 'numbers[]'
 #include <stdbool.h>
 
 
