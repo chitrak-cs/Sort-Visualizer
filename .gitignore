@@ -1,0 +1,17 @@
+# Executable
+visualizer
+
+# Object files
+*.o
+
+# Build directory
+build/
+
+# VS Code
+.vscode/
+
+# Linux temporary files
+*~
+
+# macOS
+.DS_Store
