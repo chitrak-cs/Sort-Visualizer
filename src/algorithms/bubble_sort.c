@@ -1,7 +1,9 @@
 #include "sort_state.h"
 #include "metrics.h"
+#include "bubble_sort.h"
 #include "array.h" // provides 'count' and 'numbers[]'
 #include <stdbool.h>
+
 
 static int i = 0; // current index in pass
 static int n = 0; // length of unsorted region (initially count)
@@ -118,3 +120,12 @@ int get_finish_animation_index(void)
 
     return finish_animation;
 }
+
+Algorithm BubbleSort =
+    {
+        .name = "Bubble Sort",
+
+        .step = sort_step,
+
+        .reset = reset_sort
+    };

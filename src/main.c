@@ -3,10 +3,11 @@
 #include <stdbool.h>
 #include <raylib.h>
 
+#include "algorithms/bubble_sort.h"
 #include "metrics.h"
 #include "array.h" // initialises 'numbers' and 'count'
 #include "renderer.h"
-#include "sort_state.h" // sort_step(), reset_sort(), sort_n
+#include "sort_state.h" // BubbleSort.step(), BubbleSort.reset(), sort_n
 #include "config.h"     // WIDTH, HEIGHT, SIDEBAR_WIDTH
 
 int main(void)
@@ -22,7 +23,7 @@ int main(void)
     if (sorting_speed < 1)
         sorting_speed = 1; // ensure at least 1
 
-    reset_sort(); // initialize sorting state
+    BubbleSort.reset(); // initialize sorting state
 
     while (!WindowShouldClose())
     {
@@ -34,13 +35,13 @@ int main(void)
         // Next-step (manual) only when paused
         if (paused && IsKeyPressed(KEY_N) && !status.done)
         {
-            status = sort_step();
+            status = BubbleSort.step();
         }
         // Shuffle the array
         if (IsKeyPressed(KEY_R))
         {
             initialise_numbers();
-            reset_sort();
+            BubbleSort.reset();
             status = (sort_status){0};
         }
         // Increase array size
@@ -48,7 +49,7 @@ int main(void)
         {
             count += 20;
             initialise_numbers();
-            reset_sort();
+            BubbleSort.reset();
             status = (sort_status){0};
             sorting_speed = count / 20;
             if (sorting_speed < 1)
@@ -59,7 +60,7 @@ int main(void)
         {
             count -= 20;
             initialise_numbers();
-            reset_sort();
+            BubbleSort.reset();
             reset_metrics();
             status = (sort_status){0};
             sorting_speed = count / 20;
@@ -91,7 +92,7 @@ int main(void)
         {
             for (int k = 0; k < sorting_speed; k++)
             {
-                status = sort_step();
+                status = BubbleSort.step();
                 if (status.done)
                     break;
             }

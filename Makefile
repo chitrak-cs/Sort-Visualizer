@@ -4,7 +4,7 @@ SRC = \
 src/main.c \
 src/array.c \
 src/renderer.c \
-src/bubble_sort.c \
+src/algorithms/bubble_sort.c \
 src/metrics.c
 
 CFLAGS = $(shell pkg-config --cflags raylib)
