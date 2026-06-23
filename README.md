@@ -11,7 +11,9 @@ This project provides an interactive visualization of popular sorting algorithms
 <p align="center">
     <img src="images/home.png" alt="Sorting Visualizer" width="100%">
 </p>
-
+<p align="center">
+    <img src="images/image.png" alt="Sorting Visualizer" width="100%">
+</p>
 ---
 
 ## ✨ Features
