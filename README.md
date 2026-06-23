@@ -1,80 +1,103 @@
 # 🎨 Sorting Visualizer
 
-A modern Sorting Visualizer built in **C** using the **raylib** graphics library.
+A modern **Sorting Visualizer** built in **C** using the **raylib** graphics library.
 
-It demonstrates how popular sorting algorithms work step-by-step with real-time animations, statistics, and interactive controls.
+This project provides an interactive visualization of popular sorting algorithms with smooth animations, live performance statistics, and intuitive keyboard controls to help understand how different sorting techniques work.
+
+---
+
+## 📸 Preview
+
+<p align="center">
+    <img src="images/home.png" alt="Sorting Visualizer" width="100%">
+</p>
 
 ---
 
 ## ✨ Features
 
-- 📊 Animated sorting visualization
-- 🎮 Interactive controls
+- 🎨 Modern dark-themed graphical interface
+- 📊 Real-time sorting visualization
 - ⚡ Adjustable animation speed
-- 📈 Real-time statistics
+- 📈 Live statistics
   - Comparisons
   - Swaps
-- 🔀 Shuffle array instantly
+- 🔀 Random array shuffle
 - ⏸ Pause / Resume animation
 - 👣 Step-by-step execution
-- 📏 Dynamic array size
-- 🎨 Modern dark themed UI
+- 📏 Dynamic array size adjustment
+- 🎯 Keyboard shortcuts for quick interaction
+- 🌈 Color-coded visualization
+  - White → Unsorted
+  - Blue → Current comparison
+  - Red → Swapping
+  - Green → Sorted
 
 ---
 
-## Supported Algorithms
+# 📚 Supported Algorithms
 
-- Bubble Sort
-- Selection Sort
-- Insertion Sort
-- Merge Sort
-- Quick Sort
-- Heap Sort
-
----
-
-## Controls
-
-| Key | Action |
-|------|--------|
+| Key | Algorithm |
+|------|-----------|
 | **1** | Bubble Sort |
 | **2** | Selection Sort |
 | **3** | Insertion Sort |
 | **4** | Merge Sort |
 | **5** | Quick Sort |
 | **6** | Heap Sort |
+
+---
+
+# 🎮 Controls
+
+| Key | Action |
+|------|--------|
 | **SPACE** | Pause / Resume |
 | **R** | Shuffle Array |
 | **UP** | Increase Array Size |
 | **DOWN** | Decrease Array Size |
-| **+** | Increase Speed |
-| **-** | Decrease Speed |
+| **+** | Increase Animation Speed |
+| **-** | Decrease Animation Speed |
 | **N** | Execute One Step (Paused Mode) |
+| **1 – 6** | Switch Sorting Algorithm |
 
 ---
 
-## Project Structure
+# 📂 Project Structure
 
-```
+```text
 SortVisualizer/
+│
+├── images/
+│   └── home.png
 │
 ├── src/
 │   ├── algorithms/
-│   │   ├── bubble_sort.c
-│   │   ├── selection_sort.c
-│   │   ├── insertion_sort.c
-│   │   ├── merge_sort.c
-│   │   ├── quick_sort.c
-│   │   ├── heap_sort.c
 │   │   ├── algorithm.h
-│   │   └── ...
+│   │   ├── bubble_sort.c
+│   │   ├── bubble_sort.h
+│   │   ├── selection_sort.c
+│   │   ├── selection_sort.h
+│   │   ├── insertion_sort.c
+│   │   ├── insertion_sort.h
+│   │   ├── merge_sort.c
+│   │   ├── merge_sort.h
+│   │   ├── quick_sort.c
+│   │   ├── quick_sort.h
+│   │   ├── heap_sort.c
+│   │   └── heap_sort.h
 │   │
-│   ├── renderer.c
-│   ├── array.c
-│   ├── metrics.c
 │   ├── algorithm_manager.c
-│   ├── main.c
-│   └── ...
+│   ├── algorithm_manager.h
+│   ├── renderer.c
+│   ├── renderer.h
+│   ├── metrics.c
+│   ├── metrics.h
+│   ├── array.c
+│   ├── array.h
+│   ├── sort_state.h
+│   ├── config.h
+│   └── main.c
 │
 ├── Makefile
 └── README.md
@@ -82,24 +105,30 @@ SortVisualizer/
 
 ---
 
-# Build Instructions
+# 🛠 Technologies Used
+
+- C
+- raylib
+- GCC
+- Make
+- Linux (Ubuntu)
+
+---
+
+# 🚀 Build Instructions
 
 ## Prerequisites
 
-- GCC
-- Make
-- raylib
+Install the required packages.
 
 ### Ubuntu
 
-Install raylib:
-
 ```bash
 sudo apt update
-sudo apt install libraylib-dev
+sudo apt install build-essential libraylib-dev
 ```
 
-If your package manager doesn't provide raylib:
+If raylib is unavailable in your package manager:
 
 ```bash
 git clone https://github.com/raysan5/raylib.git
@@ -113,7 +142,7 @@ sudo make install
 
 ---
 
-## Clone Repository
+## Clone the Repository
 
 ```bash
 git clone https://github.com/chitrak-cs/Sort-Visualizer.git
@@ -138,7 +167,7 @@ make
 
 ---
 
-## Clean Build
+## Clean
 
 ```bash
 make clean
@@ -146,30 +175,7 @@ make clean
 
 ---
 
-## Technologies Used
-
-- C
-- raylib
-- GCC
-- Makefile
-
----
-
-## Screenshots
-
-> Add screenshots here after the UI is finalized.
-
-Example:
-
-```
-images/main.png
-images/bubble_sort.png
-images/quick_sort.png
-```
-
----
-
-## Future Improvements
+# 🎯 Future Improvements
 
 - Radix Sort
 - Counting Sort
@@ -177,25 +183,25 @@ images/quick_sort.png
 - Cocktail Sort
 - Tim Sort
 - Intro Sort
-- Smooth bar animations
+- Smooth transition animations
 - Sound effects
-- Gradient bars
-- FPS limiter
-- Light/Dark themes
-- Export statistics
+- Multiple color themes
 - Benchmark mode
+- Performance graphs
+- Custom array generation
+- Random data distributions
+- Nearly sorted arrays
+- Reverse sorted arrays
 
 ---
 
-## Author
+# 👨‍💻 Author
 
 **Chitrak Betal**
 
 - GitHub: https://github.com/chitrak-cs
-- LinkedIn: *(Add your LinkedIn profile here)*
+- LinkedIn: https://www.linkedin.com/in/chitrak-betal-a5398431a/
 
 ---
 
-## License
-
-This project is licensed under the MIT License.
+## ⭐ If you found this project useful, consider giving it a star!
